@@ -1045,9 +1045,9 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         let point: CGPoint = touch.location(in: view)
 
         if gestureRecognizer == leftPanGesture {
-            return slideLeftForGestureRecognizer(gestureRecognizer, point: point)
+            return shouldSlide(forContainerView: .left, forGestureRecognizer: gestureRecognizer, withTouchPoint: point)
         } else if gestureRecognizer == rightPanGesture {
-            return slideRightViewForGestureRecognizer(gestureRecognizer, withTouchPoint: point)
+            return shouldSlide(forContainerView: .right, forGestureRecognizer: gestureRecognizer, withTouchPoint: point)
         } else if gestureRecognizer == leftTapGesture {
             return isLeftOpen && !isPointContainedWithinLeftRect(point)
         } else if gestureRecognizer == rightTapGesture {
@@ -1065,8 +1065,16 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         config.simultaneousGestureRecognizers
     }
 
-    fileprivate func slideLeftForGestureRecognizer(_ gesture: UIGestureRecognizer, point:CGPoint) -> Bool{
-        isLeftOpen || config.panFromBezel && isLeftPointContainedWithinBezelRect(point)
+    fileprivate func shouldSlide(
+        forContainerView containerViewId: SideContainerViewId, forGestureRecognizer gesture: UIGestureRecognizer,
+        withTouchPoint point: CGPoint
+    ) -> Bool {
+        switch containerViewId {
+        case .left:
+            return isLeftOpen || config.panFromBezel && isLeftPointContainedWithinBezelRect(point)
+        case .right:
+            return isRightOpen || config.rightPanFromBezel && isRightPointContainedWithinBezelRect(point)
+        }
     }
 
     fileprivate func isLeftPointContainedWithinBezelRect(_ point: CGPoint) -> Bool{
@@ -1080,10 +1088,6 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
     fileprivate func isPointContainedWithinLeftRect(_ point: CGPoint) -> Bool {
         leftContainerView.frame.contains(point)
-    }
-
-    fileprivate func slideRightViewForGestureRecognizer(_ gesture: UIGestureRecognizer, withTouchPoint point: CGPoint) -> Bool {
-        isRightOpen || config.rightPanFromBezel && isRightPointContainedWithinBezelRect(point)
     }
 
     fileprivate func isRightPointContainedWithinBezelRect(_ point: CGPoint) -> Bool {
