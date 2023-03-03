@@ -1,6 +1,4 @@
-import XCTest
 @testable import SlideMenuController
+import XCTest
 
-final class SlideMenuControllerTests: XCTestCase {
-    
-}
+final class SlideMenuControllerTests: XCTestCase {}

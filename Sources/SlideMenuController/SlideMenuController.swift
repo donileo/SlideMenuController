@@ -119,7 +119,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
     open var isRightOpen: Bool {
         rightViewController != nil &&
-          rightContainerView.frame.origin.x == view.bounds.width - rightContainerView.frame.size.width
+            rightContainerView.frame.origin.x == view.bounds.width - rightContainerView.frame.size.width
     }
 
     open var isRightHidden: Bool {
@@ -159,7 +159,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         super.init(coder: aDecoder)
     }
 
-    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+    override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 
@@ -174,7 +174,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         setupViews()
     }
 
-    open override func awakeFromNib() {
+    override open func awakeFromNib() {
         super.awakeFromNib()
         setupViews()
     }
@@ -297,51 +297,51 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         addGestures(for: containerViewId)
     }
 
-    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
         mainContainerView.transform = .identity
         leftContainerView.isHidden = true
         rightContainerView.isHidden = true
 
-        coordinator.animate(alongsideTransition: nil) { context in
+        coordinator.animate(alongsideTransition: nil) { _ in
             self.closeNonAnimation(for: .left)
             self.closeNonAnimation(for: .right)
             self.leftContainerView.isHidden = false
             self.rightContainerView.isHidden = false
 
-            if self.leftPanGesture != nil && self.leftPanGesture != nil {
+            if self.leftPanGesture != nil, self.leftPanGesture != nil {
                 self.removeGestures(for: .left)
                 self.addGestures(for: .left)
             }
 
-            if self.rightPanGesture != nil && self.rightPanGesture != nil {
+            if self.rightPanGesture != nil, self.rightPanGesture != nil {
                 self.removeGestures(for: .right)
                 self.addGestures(for: .right)
             }
         }
     }
 
-    open override func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
         edgesForExtendedLayout = .all
     }
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //automatically called
-        //self.mainViewController?.viewWillAppear(animated)
+        // automatically called
+        // self.mainViewController?.viewWillAppear(animated)
     }
 
-    open override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+    override open var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         mainViewController?.supportedInterfaceOrientations ?? .all
     }
 
-    open override var shouldAutorotate: Bool {
+    override open var shouldAutorotate: Bool {
         mainViewController?.shouldAutorotate ?? false
     }
 
-    open override func viewWillLayoutSubviews() {
+    override open func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         if let mainViewController {
             setUpViewController(mainContainerView, targetViewController: mainViewController)
@@ -356,7 +356,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    open override var preferredStatusBarStyle: UIStatusBarStyle {
+    override open var preferredStatusBarStyle: UIStatusBarStyle {
         mainViewController?.preferredStatusBarStyle ?? .default
     }
 
@@ -429,9 +429,9 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
                 switch containerViewId {
                 case .left:
-                    self.leftPanGesture = panGesture
+                    leftPanGesture = panGesture
                 case .right:
-                    self.rightPanGesture = panGesture
+                    rightPanGesture = panGesture
                 }
             }
         }
@@ -456,9 +456,9 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
                 switch containerViewId {
                 case .left:
-                    self.leftTapGesture = tapGesture
+                    leftTapGesture = tapGesture
                 case .right:
-                    self.rightTapGesture = tapGesture
+                    rightTapGesture = tapGesture
                 }
             }
         }
@@ -487,11 +487,11 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
         switch containerViewId {
         case .left:
-            self.leftPanGesture = nil
-            self.leftTapGesture = nil
+            leftPanGesture = nil
+            leftTapGesture = nil
         case .right:
-            self.rightPanGesture = nil
-            self.leftTapGesture = nil
+            rightPanGesture = nil
+            leftTapGesture = nil
         }
     }
 
@@ -676,7 +676,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                     viewController: self, didOpenContainerView: containerView,
                     containerViewController: containerViewController, containerViewId: containerViewId
                 )
-            })
+            }
+        )
     }
 
     open func close(_ containerViewId: SideContainerViewId, withVelocity velocity: CGFloat) {
@@ -735,7 +736,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                     viewController: self, didCloseContainerView: containerView,
                     containerViewController: containerViewController, containerViewId: containerViewId
                 )
-            })
+            }
+        )
     }
 
     open func toggle(_ containerViewId: SideContainerViewId) {
@@ -743,7 +745,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
         switch containerViewId {
         case .left:
-             isOpen = isLeftOpen
+            isOpen = isLeftOpen
         case .right:
             isOpen = isRightOpen
         }
@@ -1003,6 +1005,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     // MARK: UIGestureRecognizerDelegate
+
     open func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         let point: CGPoint = touch.location(in: view)
 
@@ -1039,7 +1042,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    fileprivate func isLeftPointContainedWithinBezelRect(_ point: CGPoint) -> Bool{
+    fileprivate func isLeftPointContainedWithinBezelRect(_ point: CGPoint) -> Bool {
         guard let bezelWidth = config.leftBezelWidth else { return true }
 
         var leftBezelRect: CGRect = .zero
@@ -1060,8 +1063,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 }
 
-extension UIViewController {
-    public var slideMenuController: SlideMenuController? {
+public extension UIViewController {
+    var slideMenuController: SlideMenuController? {
         var viewController: UIViewController? = self
 
         while viewController != nil {
@@ -1075,25 +1078,25 @@ extension UIViewController {
         return nil
     }
 
-    public func addLeftBarButtonWithImage(_ buttonImage: UIImage) {
+    func addLeftBarButtonWithImage(_ buttonImage: UIImage) {
         let leftButton: UIBarButtonItem = .init(
             image: buttonImage, style: .plain, target: self, action: #selector(toggleLeft)
         )
         navigationItem.leftBarButtonItem = leftButton
     }
 
-    public func addRightBarButtonWithImage(_ buttonImage: UIImage) {
+    func addRightBarButtonWithImage(_ buttonImage: UIImage) {
         let rightButton: UIBarButtonItem = .init(
             image: buttonImage, style: .plain, target: self, action: #selector(toggleRight)
         )
         navigationItem.rightBarButtonItem = rightButton
     }
 
-    @objc public func toggleLeft() {
+    @objc func toggleLeft() {
         slideMenuController?.toggle(.left)
     }
 
-    @objc public func toggleRight() {
+    @objc func toggleRight() {
         slideMenuController?.toggle(.right)
     }
 
@@ -1113,7 +1116,7 @@ extension UIViewController {
         slideMenuController?.close(.right)
     }
 
-    public func addPriorityToMenuGesture(_ targetScrollView: UIScrollView) {
+    func addPriorityToMenuGesture(_ targetScrollView: UIScrollView) {
         guard let slideMenuController, let recognizers = slideMenuController.view.gestureRecognizers else {
             return
         }
