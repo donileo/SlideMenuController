@@ -512,7 +512,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             let translation: CGPoint = panGesture.translation(in: panGesture.view!)
             leftContainerView.frame = applyLeftTranslation(translation, toFrame: leftPanState.frameAtStart)
             applyOpacity(.left)
-            applyLeftContentViewScale()
+            applyContentViewScale(.left)
         case .ended, .cancelled:
             if leftPanState.last != .changed {
                 setCloseWindowLevel()
@@ -585,7 +585,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             let translation: CGPoint = panGesture.translation(in: panGesture.view!)
             rightContainerView.frame = applyRightTranslation(translation, toFrame: rightPanState.frameAtStart)
             applyOpacity(.right)
-            applyRightContentViewScale()
+            applyContentViewScale(.right)
         case .ended, .cancelled:
             if rightPanState.last != .changed {
                 setCloseWindowLevel()
@@ -929,16 +929,20 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         opacityView.layer.opacity = Float(opacity)
     }
 
-    fileprivate func applyLeftContentViewScale() {
-        let scale: CGFloat = 1.0 - ((1.0 - config.contentViewScale) * openedLeftRatio)
-        let drag: CGFloat = config.leftViewWidth + leftContainerView.frame.origin.x
+    fileprivate func applyContentViewScale(_ containerViewId: SideContainerViewId) {
+        let openedRatio: CGFloat
+        let drag: CGFloat
 
-        config.contentViewDrag == true ? (mainContainerView.transform = CGAffineTransform(translationX: drag, y: 0)) : (mainContainerView.transform = CGAffineTransform(scaleX: scale, y: scale))
-    }
+        switch containerViewId {
+        case .left:
+            openedRatio = openedLeftRatio
+            drag = config.leftViewWidth + leftContainerView.frame.origin.x
+        case .right:
+            openedRatio = openedRightRatio
+            drag = rightContainerView.frame.origin.x - mainContainerView.frame.size.width
+        }
 
-    fileprivate func applyRightContentViewScale() {
-        let scale: CGFloat = 1.0 - ((1.0 - config.contentViewScale) * openedRightRatio)
-        let drag: CGFloat = rightContainerView.frame.origin.x - mainContainerView.frame.size.width
+        let scale = 1.0 - ((1.0 - config.contentViewScale) * openedRatio)
 
         if config.contentViewDrag {
             mainContainerView.transform = CGAffineTransform(translationX: drag, y: 0)
