@@ -1,0 +1,13 @@
+--elseposition same-line
+--exponentgrouping disabled
+--fractiongrouping disabled
+--hexliteralcase lowercase
+--self remove
+--semicolons inline
+--stripunusedargs closure-only
+--trailingclosures true
+--trimwhitespace always
+--maxwidth 160
+--wraparguments preserve
+--wrapcollections before-first
+--wrapparameters preserve
