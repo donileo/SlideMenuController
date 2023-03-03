@@ -43,6 +43,10 @@ import UIKit
 }
 
 open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
+    enum SideContainerViewId {
+        case left, right
+    }
+
     public struct Config {
         public var leftViewWidth: CGFloat = 270.0
         public var leftBezelWidth: CGFloat? = 16.0
@@ -191,8 +195,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     open func setupViews() {
         setupMainContainerView()
         setupOpacityView()
-        setupLeftContainerView()
-        setupRightContainerView()
+        setupContainerView(.left)
+        setupContainerView(.right)
     }
 
     private func setupMainContainerView() {
@@ -215,42 +219,73 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         view.insertSubview(opacityView, at: 1)
     }
 
-    private func setupLeftContainerView() {
-        guard leftViewController != nil else { return }
-
-        var leftFrame = view.bounds
-        leftFrame.size.width = config.leftViewWidth
-        leftFrame.origin.x = leftMinOrigin
-
-        let leftOffset: CGFloat = 0
-        leftFrame.origin.y = leftFrame.origin.y + leftOffset
-        leftFrame.size.height = leftFrame.size.height - leftOffset
-
-        leftContainerView = UIView(frame: leftFrame)
-        leftContainerView.backgroundColor = .clear
-        leftContainerView.autoresizingMask = .flexibleHeight
-
-        view.insertSubview(leftContainerView, at: 2)
-        addLeftGestures()
+    private func viewController(for containerViewId: SideContainerViewId) -> UIViewController? {
+        switch containerViewId {
+        case .left:
+            return leftViewController
+        case .right:
+            return rightViewController
+        }
     }
 
-    private func setupRightContainerView() {
-        guard rightViewController != nil else { return }
+    private func subviewPosition(for containerViewId: SideContainerViewId) -> Int {
+        switch containerViewId {
+        case .left:
+            return 2
+        case .right:
+            return 3
+        }
+    }
 
-        var rightFrame: CGRect = view.bounds
-        rightFrame.size.width = config.rightViewWidth
-        rightFrame.origin.x = rightMinOrigin
+    private func containerView(for containerViewId: SideContainerViewId) -> UIView {
+        switch containerViewId {
+        case .left:
+            return leftContainerView
+        case .right:
+            return rightContainerView
+        }
+    }
 
-        let rightOffset: CGFloat = 0
-        rightFrame.origin.y = rightFrame.origin.y + rightOffset
-        rightFrame.size.height = rightFrame.size.height - rightOffset
+    private func setupContainerView(_ containerViewId: SideContainerViewId) {
+        guard viewController(for: containerViewId) != nil else { return }
+        var containerFrame = view.bounds
 
-        rightContainerView = UIView(frame: rightFrame)
-        rightContainerView.backgroundColor = .clear
-        rightContainerView.autoresizingMask = .flexibleHeight
+        let frameWidth: CGFloat
+        let frameOrigin: CGFloat
 
-        view.insertSubview(rightContainerView, at: 3)
-        addRightGestures()
+        switch containerViewId {
+        case .left:
+            frameWidth = config.leftViewWidth
+            frameOrigin = leftMinOrigin
+        case .right:
+            frameWidth = config.rightViewWidth
+            frameOrigin = rightMinOrigin
+        }
+
+        containerFrame.size.width = frameWidth
+        containerFrame.origin.x = frameOrigin
+
+        let offset: CGFloat = 0
+        containerFrame.origin.y = containerFrame.origin.y + offset
+        containerFrame.size.height = containerFrame.size.height - offset
+
+        let containerView: UIView
+
+        switch containerViewId {
+        case .left:
+            leftContainerView = UIView(frame: containerFrame)
+            containerView = leftContainerView
+        case .right:
+            rightContainerView = UIView(frame: containerFrame)
+            containerView = rightContainerView
+        }
+
+        containerView.backgroundColor = .clear
+        containerView.autoresizingMask = .flexibleHeight
+
+        let subViewPos = subviewPosition(for: containerViewId)
+        view.insertSubview(containerView, at: subViewPos)
+        addGestures(for: containerViewId)
     }
 
     open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -409,6 +444,15 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                 view.addGestureRecognizer(rightTapGesture)
                 self.rightTapGesture = rightTapGesture
             }
+        }
+    }
+
+    private func addGestures(for containerViewId: SideContainerViewId) {
+        switch containerViewId {
+        case .left:
+            addLeftGestures()
+        case .right:
+            addRightGestures()
         }
     }
 
