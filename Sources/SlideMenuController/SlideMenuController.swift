@@ -796,28 +796,26 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    open func changeLeftViewWidth(_ width: CGFloat) {
-        config.leftViewWidth = width
-        var leftFrame: CGRect = view.bounds
-        leftFrame.size.width = width
-        leftFrame.origin.x = leftMinOrigin
+    open func change(_ containerViewId: SideContainerViewId, viewWidth width: CGFloat) {
+        let frameXOrigin: Double
 
-        let leftOffset: CGFloat = 0
-        leftFrame.origin.y = leftFrame.origin.y + leftOffset
-        leftFrame.size.height = leftFrame.size.height - leftOffset
-        leftContainerView.frame = leftFrame
-    }
+        switch containerViewId {
+        case .left:
+            config.leftViewWidth = width
+            frameXOrigin = leftMinOrigin
+        case .right:
+            config.rightBezelWidth = width
+            frameXOrigin = rightMinOrigin
+        }
 
-    open func changeRightViewWidth(_ width: CGFloat) {
-        config.rightBezelWidth = width
-        var rightFrame: CGRect = view.bounds
-        rightFrame.size.width = width
-        rightFrame.origin.x = rightMinOrigin
+        var frame: CGRect = view.bounds
+        frame.size.width = width
+        frame.origin.x = frameXOrigin
 
-        let rightOffset: CGFloat = 0
-        rightFrame.origin.y = rightFrame.origin.y + rightOffset
-        rightFrame.size.height = rightFrame.size.height - rightOffset
-        rightContainerView.frame = rightFrame
+        let offset: CGFloat = 0
+        frame.origin.y = frame.origin.y + offset
+        frame.size.height = frame.size.height - offset
+        containerView(for: containerViewId).frame = frame
     }
 
     open func replaceViewController(
