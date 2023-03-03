@@ -546,7 +546,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             }
 
             let velocity:CGPoint = panGesture.velocity(in: panGesture.view)
-            let panInfo: PanInfo = panLeftResultInfoForVelocity(velocity)
+            let panInfo = panResultInfo(.left, velocity: velocity)
 
             if panInfo.action == .open {
                 if !leftPanState.wasHiddenAtStart {
@@ -619,7 +619,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             }
 
             let velocity: CGPoint = panGesture.velocity(in: panGesture.view)
-            let panInfo: PanInfo = panRightResultInfoForVelocity(velocity)
+            let panInfo = panResultInfo(.right, velocity: velocity)
 
             if panInfo.action == .open {
                 if !rightPanState.wasHiddenAtStart {
@@ -854,43 +854,44 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    fileprivate func panLeftResultInfoForVelocity(_ velocity: CGPoint) -> PanInfo {
-        let thresholdVelocity: CGFloat = 1000.0
-        let pointOfNoReturn = CGFloat(floor(leftMinOrigin)) + config.pointOfNoReturnWidth
-        let leftOrigin = leftContainerView.frame.origin.x
+    fileprivate func panResultInfo(_ containerViewId: SideContainerViewId, velocity: CGPoint) -> PanInfo {
+        let thresholdVelocity: CGFloat
+        let pointOfNoReturn: CGFloat
+        let origin: CGFloat
 
-        var panInfo = PanInfo(action: .close, shouldBounce: false, velocity: 0.0)
-        panInfo.action = leftOrigin <= pointOfNoReturn ? .close : .open
+        var panInfoAction: SlideAction = .close
+        var panInfoVelocity: Double = 0
 
-        if velocity.x >= thresholdVelocity {
-            panInfo.action = .open
-            panInfo.velocity = velocity.x
-        } else if velocity.x <= (-1.0 * thresholdVelocity) {
-            panInfo.action = .close
-            panInfo.velocity = velocity.x
+        switch containerViewId {
+        case .left:
+            thresholdVelocity = 1000
+            pointOfNoReturn = CGFloat(floor(leftMinOrigin)) + config.pointOfNoReturnWidth
+            origin = leftContainerView.frame.origin.x
+            panInfoAction = origin <= pointOfNoReturn ? .close : .open
+
+            if velocity.x >= thresholdVelocity {
+                panInfoAction = .open
+                panInfoVelocity = velocity.x
+            } else if velocity.x <= (-1 * thresholdVelocity) {
+                panInfoAction = .close
+                panInfoVelocity = velocity.x
+            }
+        case .right:
+            thresholdVelocity = -1000
+            pointOfNoReturn = CGFloat(floor(view.bounds.width) - config.pointOfNoReturnWidth)
+            origin = rightContainerView.frame.origin.x
+            panInfoAction = origin >= pointOfNoReturn ? .close : .open
+
+            if velocity.x <= thresholdVelocity {
+                panInfoAction = .open
+                panInfoVelocity = velocity.x
+            } else if velocity.x >= (-1 * thresholdVelocity) {
+                panInfoAction = .close
+                panInfoVelocity = velocity.x
+            }
         }
 
-        return panInfo
-    }
-
-    fileprivate func panRightResultInfoForVelocity(_ velocity: CGPoint) -> PanInfo {
-        let thresholdVelocity: CGFloat = -1000.0
-        let pointOfNoReturn = CGFloat(floor(view.bounds.width) - config.pointOfNoReturnWidth)
-        let rightOrigin: CGFloat = rightContainerView.frame.origin.x
-
-        var panInfo = PanInfo(action: .close, shouldBounce: false, velocity: 0.0)
-
-        panInfo.action = rightOrigin >= pointOfNoReturn ? .close : .open
-
-        if velocity.x <= thresholdVelocity {
-            panInfo.action = .open
-            panInfo.velocity = velocity.x
-        } else if velocity.x >= (-1.0 * thresholdVelocity) {
-            panInfo.action = .close
-            panInfo.velocity = velocity.x
-        }
-
-        return panInfo
+        return PanInfo(action: panInfoAction, shouldBounce: false, velocity: panInfoVelocity)
     }
 
     fileprivate func applyTranslation(
