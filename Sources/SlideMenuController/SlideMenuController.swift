@@ -364,6 +364,10 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         mainViewController?.preferredStatusBarStyle ?? .default
     }
 
+    override open var prefersStatusBarHidden: Bool {
+        mainViewController?.prefersStatusBarHidden ?? false
+    }
+
     open func open(_ containerViewId: SideContainerViewId) {
         guard let containerViewController = viewController(for: containerViewId) else { return }
         let containerView = containerView(for: containerViewId)
