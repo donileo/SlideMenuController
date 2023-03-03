@@ -510,7 +510,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             }
 
             let translation: CGPoint = panGesture.translation(in: panGesture.view!)
-            leftContainerView.frame = applyLeftTranslation(translation, toFrame: leftPanState.frameAtStart)
+            leftContainerView.frame = applyTranslation(.left, translation, toFrame: leftPanState.frameAtStart)
             applyOpacity(.left)
             applyContentViewScale(.left)
         case .ended, .cancelled:
@@ -583,7 +583,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             }
 
             let translation: CGPoint = panGesture.translation(in: panGesture.view!)
-            rightContainerView.frame = applyRightTranslation(translation, toFrame: rightPanState.frameAtStart)
+            rightContainerView.frame = applyTranslation(.right, translation, toFrame: rightPanState.frameAtStart)
             applyOpacity(.right)
             applyContentViewScale(.right)
         case .ended, .cancelled:
@@ -878,42 +878,41 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         return panInfo
     }
 
-    fileprivate func applyLeftTranslation(_ translation: CGPoint, toFrame:CGRect) -> CGRect {
+    fileprivate func applyTranslation(
+        _ containerViewId: SideContainerViewId, _ translation: CGPoint, toFrame: CGRect
+    ) -> CGRect {
         var newOrigin: CGFloat = toFrame.origin.x
         newOrigin += translation.x
 
-        let minOrigin = leftMinOrigin
-        let maxOrigin: CGFloat = 0
-        var newFrame: CGRect = toFrame
+        let minOrigin: CGFloat
+        let maxOrigin: CGFloat
 
-        if newOrigin < minOrigin {
-            newOrigin = minOrigin
-        } else if newOrigin > maxOrigin {
-            newOrigin = maxOrigin
+        var newFrame = toFrame
+
+        switch containerViewId {
+        case .left:
+            minOrigin = leftMinOrigin
+            maxOrigin = 0
+
+            if newOrigin < minOrigin {
+                newOrigin = minOrigin
+            } else if newOrigin > maxOrigin {
+                newOrigin = maxOrigin
+            }
+        case .right:
+            minOrigin = rightMinOrigin
+            maxOrigin = rightMinOrigin - rightContainerView.frame.size.width
+
+            if newOrigin > minOrigin {
+                newOrigin = minOrigin
+            } else if newOrigin < maxOrigin {
+                newOrigin = maxOrigin
+            }
         }
 
         newFrame.origin.x = newOrigin
         return newFrame
     }
-
-    fileprivate func applyRightTranslation(_ translation: CGPoint, toFrame: CGRect) -> CGRect {
-        var newOrigin: CGFloat = toFrame.origin.x
-        newOrigin += translation.x
-
-        let minOrigin = rightMinOrigin
-        let maxOrigin = rightMinOrigin - rightContainerView.frame.size.width
-        var newFrame: CGRect = toFrame
-
-        if newOrigin > minOrigin {
-            newOrigin = minOrigin
-        } else if newOrigin < maxOrigin {
-            newOrigin = maxOrigin
-        }
-
-        newFrame.origin.x = newOrigin
-        return newFrame
-    }
-
 
     fileprivate func applyOpacity(_ containerViewId: SideContainerViewId) {
         let openedRatio: CGFloat
