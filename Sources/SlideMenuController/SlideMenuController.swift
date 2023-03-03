@@ -8,7 +8,6 @@ import Foundation
 import UIKit
 
 @objc public protocol SlideMenuControllerDelegate {
-    // Container View Notification Methods
     @objc optional func slideMenuController(
         viewController: SlideMenuController, willOpenContainerView view: UIView, containerViewController: UIViewController?,
         containerViewId: SlideMenuController.SideContainerViewId
@@ -1049,9 +1048,9 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         } else if gestureRecognizer == rightPanGesture {
             return shouldSlide(forContainerView: .right, forGestureRecognizer: gestureRecognizer, withTouchPoint: point)
         } else if gestureRecognizer == leftTapGesture {
-            return isLeftOpen && !isPointContainedWithinLeftRect(point)
+            return isLeftOpen && !leftContainerView.frame.contains(point)
         } else if gestureRecognizer == rightTapGesture {
-            return isRightOpen && !isPointContainedWithinRightRect(point)
+            return isRightOpen && !rightContainerView.frame.contains(point)
         } else {
             return true
         }
@@ -1080,29 +1079,21 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     fileprivate func isLeftPointContainedWithinBezelRect(_ point: CGPoint) -> Bool{
         guard let bezelWidth = config.leftBezelWidth else { return true }
 
-        var leftBezelRect: CGRect = CGRect.zero
+        var leftBezelRect: CGRect = .zero
         let tuple = view.bounds.divided(atDistance: bezelWidth, from: CGRectEdge.minXEdge)
         leftBezelRect = tuple.slice
         return leftBezelRect.contains(point)
     }
 
-    fileprivate func isPointContainedWithinLeftRect(_ point: CGPoint) -> Bool {
-        leftContainerView.frame.contains(point)
-    }
-
     fileprivate func isRightPointContainedWithinBezelRect(_ point: CGPoint) -> Bool {
         guard let rightBezelWidth = config.rightBezelWidth else { return true }
 
-        var rightBezelRect: CGRect = CGRect.zero
-        let bezelWidth: CGFloat = view.bounds.width - rightBezelWidth
+        var rightBezelRect: CGRect = .zero
+        let bezelWidth = view.bounds.width - rightBezelWidth
         let tuple = view.bounds.divided(atDistance: bezelWidth, from: CGRectEdge.minXEdge)
 
         rightBezelRect = tuple.remainder
         return rightBezelRect.contains(point)
-    }
-
-    fileprivate func isPointContainedWithinRightRect(_ point: CGPoint) -> Bool {
-        rightContainerView.frame.contains(point)
     }
 }
 
