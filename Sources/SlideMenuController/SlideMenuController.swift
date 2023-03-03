@@ -31,6 +31,10 @@ import UIKit
 }
 
 open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
+    public enum ContainerViewId: Int {
+        case left, right, main
+    }
+
     @objc public enum SideContainerViewId: Int {
         case left, right
     }
@@ -203,6 +207,17 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         view.insertSubview(opacityView, at: 1)
     }
 
+    private func viewController(for containerViewId: ContainerViewId) -> UIViewController? {
+        switch containerViewId {
+        case .left:
+            return leftViewController
+        case .right:
+            return rightViewController
+        case .main:
+            return mainViewController
+        }
+    }
+
     private func viewController(for containerViewId: SideContainerViewId) -> UIViewController? {
         switch containerViewId {
         case .left:
@@ -218,6 +233,17 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             return 2
         case .right:
             return 3
+        }
+    }
+
+    private func containerView(for containerViewId: ContainerViewId) -> UIView {
+        switch containerViewId {
+        case .left:
+            return leftContainerView
+        case .right:
+            return rightContainerView
+        case .main:
+            return mainContainerView
         }
     }
 
@@ -794,48 +820,37 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         rightContainerView.frame = rightFrame
     }
 
-    open func replaceMainViewController(with viewController: UIViewController, closingLeftRightPanels closePanels: Bool) {
-        if let mainViewController {
-            removeViewController(mainViewController)
+    open func replaceViewController(
+        for containerViewId: ContainerViewId, with newViewController: UIViewController, closingAfter shouldClose: Bool
+    ) {
+        let viewController = viewController(for: containerViewId)
+
+        if let viewController {
+            removeViewController(viewController)
         }
 
-        mainViewController = viewController
-
-        setUpViewController(mainContainerView, targetViewController: viewController)
-
-        if closePanels {
-            close(.left)
-            close(.right)
-        }
-    }
-
-    open func replaceLeftViewController(with viewController: UIViewController, closingAfter shouldClose: Bool) {
-        if let leftViewController {
-            removeViewController(leftViewController)
+        switch containerViewId {
+        case .left:
+            leftViewController = newViewController
+        case .right:
+            rightViewController = newViewController
+        case .main:
+            mainViewController = newViewController
         }
 
-        leftViewController = viewController
-
-        // viewController is by now the same reference as leftViewController so they can be used interchangeably
-        setUpViewController(leftContainerView, targetViewController: viewController)
+        let containerView = containerView(for: containerViewId)
+        setUpViewController(containerView, targetViewController: newViewController)
 
         if shouldClose {
-            close(.left)
-        }
-    }
-
-    open func replaceRightViewController(with viewController: UIViewController, closingAfter shouldClose: Bool) {
-        if let rightViewController {
-            removeViewController(rightViewController)
-        }
-
-        rightViewController = viewController
-
-        // viewController is by now the same reference as leftViewController so they can be used interchangeably
-        setUpViewController(rightContainerView, targetViewController: viewController)
-
-        if shouldClose {
-            close(.right)
+            switch containerViewId {
+            case .left:
+                close(.left)
+            case .right:
+                close(.right)
+            case .main:
+                close(.left)
+                close(.right)
+            }
         }
     }
 
