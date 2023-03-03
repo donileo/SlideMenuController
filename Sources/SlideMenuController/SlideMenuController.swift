@@ -511,7 +511,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
             let translation: CGPoint = panGesture.translation(in: panGesture.view!)
             leftContainerView.frame = applyLeftTranslation(translation, toFrame: leftPanState.frameAtStart)
-            applyLeftOpacity()
+            applyOpacity(.left)
             applyLeftContentViewScale()
         case .ended, .cancelled:
             if leftPanState.last != .changed {
@@ -584,7 +584,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
             let translation: CGPoint = panGesture.translation(in: panGesture.view!)
             rightContainerView.frame = applyRightTranslation(translation, toFrame: rightPanState.frameAtStart)
-            applyRightOpacity()
+            applyOpacity(.right)
             applyRightContentViewScale()
         case .ended, .cancelled:
             if rightPanState.last != .changed {
@@ -914,14 +914,18 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         return newFrame
     }
 
-    fileprivate func applyLeftOpacity() {
-        let opacity: CGFloat = config.contentViewOpacity * openedLeftRatio
-        opacityView.layer.opacity = Float(opacity)
-    }
 
+    fileprivate func applyOpacity(_ containerViewId: SideContainerViewId) {
+        let openedRatio: CGFloat
 
-    fileprivate func applyRightOpacity() {
-        let opacity: CGFloat = config.contentViewOpacity * openedRightRatio
+        switch containerViewId {
+        case .left:
+            openedRatio = openedLeftRatio
+        case .right:
+            openedRatio = openedRightRatio
+        }
+
+        let opacity = config.contentViewOpacity * openedRatio
         opacityView.layer.opacity = Float(opacity)
     }
 
