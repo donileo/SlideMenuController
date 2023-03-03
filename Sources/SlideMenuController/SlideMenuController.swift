@@ -750,25 +750,23 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             })
     }
 
-    open override func toggleLeft() {
-        if isLeftOpen {
-            close(.left)
-            setCloseWindowLevel()
-            // Tracking of close tap is put in here. Because closeMenu is due to be call even when the menu tap.
-            track(.tapClose, containerViewId: .left)
-        } else {
-            open(.left)
-        }
-    }
+    open func toggle(_ containerViewId: SideContainerViewId) {
+        let isOpen: Bool
 
-    open override func toggleRight() {
-        if isRightOpen {
-            close(.right)
+        switch containerViewId {
+        case .left:
+             isOpen = isLeftOpen
+        case .right:
+            isOpen = isRightOpen
+        }
+
+        if isOpen {
+            close(containerViewId)
             setCloseWindowLevel()
             // Tracking of close tap is put in here. Because closeMenu is due to be call even when the menu tap.
-            track(.tapClose, containerViewId: .right)
+            track(.tapClose, containerViewId: containerViewId)
         } else {
-            open(.right)
+            open(containerViewId)
         }
     }
 
@@ -1117,11 +1115,11 @@ extension UIViewController {
     }
 
     @objc public func toggleLeft() {
-        slideMenuController?.toggleLeft()
+        slideMenuController?.toggle(.left)
     }
 
     @objc public func toggleRight() {
-        slideMenuController?.toggleRight()
+        slideMenuController?.toggle(.right)
     }
 
     @objc func openLeft() {
