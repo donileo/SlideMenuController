@@ -286,12 +286,12 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             self.rightContainerView.isHidden = false
 
             if self.leftPanGesture != nil && self.leftPanGesture != nil {
-                self.removeLeftGestures()
+                self.removeGestures(for: .left)
                 self.addGestures(for: .left)
             }
 
             if self.rightPanGesture != nil && self.rightPanGesture != nil {
-                self.removeRightGestures()
+                self.removeGestures(for: .right)
                 self.addGestures(for: .right)
             }
         }
@@ -439,27 +439,34 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    open func removeLeftGestures() {
-        if let leftPanGesture {
-            view.removeGestureRecognizer(leftPanGesture)
+    open func removeGestures(for containerViewId: SideContainerViewId) {
+        let panGesture: UIPanGestureRecognizer?
+        let tapGesture: UITapGestureRecognizer?
+
+        switch containerViewId {
+        case .left:
+            panGesture = leftPanGesture
+            tapGesture = leftTapGesture
+        case .right:
+            panGesture = leftPanGesture
+            tapGesture = leftTapGesture
+        }
+
+        if let panGesture {
+            view.removeGestureRecognizer(panGesture)
+        }
+
+        if let tapGesture {
+            view.removeGestureRecognizer(tapGesture)
+        }
+
+        switch containerViewId {
+        case .left:
             self.leftPanGesture = nil
-        }
-
-        if let leftTapGesture {
-            view.removeGestureRecognizer(leftTapGesture)
             self.leftTapGesture = nil
-        }
-    }
-
-    open func removeRightGestures() {
-        if let rightPanGesture {
-            view.removeGestureRecognizer(rightPanGesture)
+        case .right:
             self.rightPanGesture = nil
-        }
-
-        if let rightTapGesture {
-            view.removeGestureRecognizer(rightTapGesture)
-            self.rightTapGesture = nil
+            self.leftTapGesture = nil
         }
     }
 
