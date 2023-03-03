@@ -39,6 +39,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     public struct Config {
+        public static let `default` = Config()
+
         public var leftViewWidth: CGFloat = 270.0
         public var leftBezelWidth: CGFloat? = 16.0
         public var leftViewOffsetY: CGFloat = 0
@@ -95,7 +97,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
     open weak var delegate: SlideMenuControllerDelegate?
 
-    var config = Config()
+    open var config = Config()
 
     open var opacityView = UIView()
     open var mainContainerView = UIView()
