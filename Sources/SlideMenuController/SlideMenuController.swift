@@ -306,8 +306,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         rightContainerView.isHidden = true
 
         coordinator.animate(alongsideTransition: nil) { context in
-            self.closeLeftNonAnimation()
-            self.closeRightNonAnimation()
+            self.closeNonAnimation(for: .left)
+            self.closeNonAnimation(for: .right)
             self.leftContainerView.isHidden = false
             self.rightContainerView.isHidden = false
 
@@ -1018,31 +1018,27 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         viewController.removeFromParent()
     }
 
-    open func closeLeftNonAnimation(){
+    open func closeNonAnimation(for containerViewId: SideContainerViewId) {
         setCloseWindowLevel()
 
-        let finalXOrigin: CGFloat = leftMinOrigin
-        var frame: CGRect = leftContainerView.frame
+        let containerView = containerView(for: containerViewId)
+
+        let finalXOrigin: CGFloat
+
+        switch containerViewId {
+        case .left:
+            finalXOrigin = leftMinOrigin
+        case .right:
+            finalXOrigin = view.bounds.width
+        }
+
+        var frame = containerView.frame
         frame.origin.x = finalXOrigin
-
-        leftContainerView.frame = frame
-        opacityView.layer.opacity = 0.0
-        mainContainerView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-        removeShadow(leftContainerView)
-        mainContainerView.isUserInteractionEnabled = true
-    }
-
-    open func closeRightNonAnimation(){
-        setCloseWindowLevel()
-
-        let finalXOrigin: CGFloat = view.bounds.width
-        var frame: CGRect = rightContainerView.frame
-        frame.origin.x = finalXOrigin
-        rightContainerView.frame = frame
+        containerView.frame = frame
 
         opacityView.layer.opacity = 0.0
-        mainContainerView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-        removeShadow(rightContainerView)
+        mainContainerView.transform = .identity
+        removeShadow(containerView)
         mainContainerView.isUserInteractionEnabled = true
     }
 
