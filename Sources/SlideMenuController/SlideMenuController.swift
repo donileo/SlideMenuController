@@ -287,12 +287,12 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
             if self.leftPanGesture != nil && self.leftPanGesture != nil {
                 self.removeLeftGestures()
-                self.addLeftGestures()
+                self.addGestures(for: .left)
             }
 
             if self.rightPanGesture != nil && self.rightPanGesture != nil {
                 self.removeRightGestures()
-                self.addRightGestures()
+                self.addGestures(for: .right)
             }
         }
     }
@@ -381,56 +381,61 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         setCloseWindowLevel()
     }
 
-    open func addLeftGestures() {
-        guard leftViewController != nil else { return }
-
-        if config.panGesturesEnabled {
-            if leftPanGesture == nil {
-                let leftPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handleLeftPanGesture))
-                leftPanGesture.delegate = self
-                view.addGestureRecognizer(leftPanGesture)
-                self.leftPanGesture = leftPanGesture
-            }
-        }
-
-        if config.tapGesturesEnabled {
-            if leftTapGesture == nil {
-                let leftTapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleLeft))
-                leftTapGesture.delegate = self
-                view.addGestureRecognizer(leftTapGesture)
-                self.leftTapGesture = leftTapGesture
-            }
-        }
-    }
-
-    open func addRightGestures() {
-        guard rightViewController != nil else { return }
-
-        if config.panGesturesEnabled {
-            if rightPanGesture == nil {
-                let rightPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handleRightPanGesture))
-                rightPanGesture.delegate = self
-                view.addGestureRecognizer(rightPanGesture)
-                self.rightPanGesture = rightPanGesture
-            }
-        }
-
-        if config.tapGesturesEnabled {
-            if rightTapGesture == nil {
-                let rightTapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleRight))
-                rightTapGesture.delegate = self
-                view.addGestureRecognizer(rightTapGesture)
-                self.rightTapGesture = rightTapGesture
-            }
-        }
-    }
-
     private func addGestures(for containerViewId: SideContainerViewId) {
-        switch containerViewId {
-        case .left:
-            addLeftGestures()
-        case .right:
-            addRightGestures()
+        guard viewController(for: containerViewId) != nil else { return }
+
+        if config.panGesturesEnabled {
+            let panGestureForContainerViewId: UIPanGestureRecognizer?
+            let panGestureRecognizerAction: Selector?
+
+            switch containerViewId {
+            case .left:
+                panGestureForContainerViewId = leftPanGesture
+                panGestureRecognizerAction = #selector(handleLeftPanGesture)
+            case .right:
+                panGestureForContainerViewId = rightPanGesture
+                panGestureRecognizerAction = #selector(handleRightPanGesture)
+            }
+
+            if panGestureForContainerViewId == nil {
+                let panGesture = UIPanGestureRecognizer(target: self, action: panGestureRecognizerAction)
+                panGesture.delegate = self
+                view.addGestureRecognizer(panGesture)
+
+                switch containerViewId {
+                case .left:
+                    self.leftPanGesture = panGesture
+                case .right:
+                    self.rightPanGesture = panGesture
+                }
+            }
+        }
+
+        if config.tapGesturesEnabled {
+            let tapGestureForContainerViewId: UITapGestureRecognizer?
+            let tapGestureRecognizerAction: Selector?
+
+            switch containerViewId {
+            case .left:
+                tapGestureForContainerViewId = leftTapGesture
+                tapGestureRecognizerAction = #selector(toggleLeft)
+            case .right:
+                tapGestureForContainerViewId = rightTapGesture
+                tapGestureRecognizerAction = #selector(toggleRight)
+            }
+
+            if tapGestureForContainerViewId == nil {
+                let tapGesture = UITapGestureRecognizer(target: self, action: tapGestureRecognizerAction)
+                tapGesture.delegate = self
+                view.addGestureRecognizer(tapGesture)
+
+                switch containerViewId {
+                case .left:
+                    self.leftTapGesture = tapGesture
+                case .right:
+                    self.rightTapGesture = tapGesture
+                }
+            }
         }
     }
 
