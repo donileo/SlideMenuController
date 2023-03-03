@@ -41,8 +41,10 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     public struct Config {
         public var leftViewWidth: CGFloat = 270.0
         public var leftBezelWidth: CGFloat? = 16.0
+        public var leftViewOffsetY: CGFloat = 0
         public var rightViewWidth: CGFloat = 270.0
         public var rightBezelWidth: CGFloat? = 16.0
+        public var rightViewOffsetY: CGFloat = 0
 
         public var contentViewScale: CGFloat = 0.96
         public var contentViewOpacity: CGFloat = 0.5
@@ -261,22 +263,24 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
         let frameWidth: CGFloat
         let frameOrigin: CGFloat
+        let frameOriginYOffset: CGFloat
 
         switch containerViewId {
         case .left:
             frameWidth = config.leftViewWidth
             frameOrigin = leftMinOrigin
+            frameOriginYOffset = config.leftViewOffsetY
         case .right:
             frameWidth = config.rightViewWidth
             frameOrigin = rightMinOrigin
+            frameOriginYOffset = config.rightViewOffsetY
         }
 
         containerFrame.size.width = frameWidth
         containerFrame.origin.x = frameOrigin
 
-        let offset: CGFloat = 0
-        containerFrame.origin.y = containerFrame.origin.y + offset
-        containerFrame.size.height = containerFrame.size.height - offset
+        containerFrame.origin.y = containerFrame.origin.y + frameOriginYOffset
+        containerFrame.size.height = containerFrame.size.height - frameOriginYOffset
 
         let containerView: UIView
 
