@@ -359,30 +359,25 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         track(.tapOpen, containerViewId: containerViewId)
     }
 
-    open override func closeLeft() {
-        guard let leftViewController else { return }
+    open func close(_ containerViewId: SideContainerViewId) {
+        guard let containerViewController = viewController(for: containerViewId) else { return }
+        let containerView = containerView(for: containerViewId)
 
         delegate?.slideMenuController?(
-            viewController: self, willCloseContainerView: leftContainerView,
-            containerViewController: leftViewController,
-            containerViewId: .left
+            viewController: self, willCloseContainerView: containerView, containerViewController: containerViewController,
+            containerViewId: containerViewId
         )
 
-        leftViewController.beginAppearanceTransition(isLeftHidden, animated: true)
-        closeLeftWithVelocity(0.0)
-        setCloseWindowLevel()
-    }
+        let isContainerViewHidden: Bool
+        switch containerViewId {
+        case .left:
+            isContainerViewHidden = isLeftHidden
+        case .right:
+            isContainerViewHidden = isRightHidden
+        }
 
-    open override func closeRight() {
-        guard let rightViewController else { return }
-
-        delegate?.slideMenuController?(
-            viewController: self, willCloseContainerView: rightContainerView,
-            containerViewController: rightViewController, containerViewId: .right
-        )
-
-        rightViewController.beginAppearanceTransition(isRightHidden, animated: true)
-        closeRightWithVelocity(0.0)
+        containerViewController.beginAppearanceTransition(isContainerViewHidden, animated: true)
+        close(containerViewId, withVelocity: 0)
         setCloseWindowLevel()
     }
 
@@ -527,7 +522,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                     leftViewController?.beginAppearanceTransition(false, animated: true)
                 }
 
-                closeLeftWithVelocity(panInfo.velocity)
+                close(.left, withVelocity: panInfo.velocity)
                 setCloseWindowLevel()
                 track(.flickClose, containerViewId: .left)
             }
@@ -600,7 +595,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                     rightViewController?.beginAppearanceTransition(false, animated: true)
                 }
 
-                closeRightWithVelocity(panInfo.velocity)
+                close(.right, withVelocity: panInfo.velocity)
                 setCloseWindowLevel()
                 track(.flickClose, containerViewId: .right)
             }
@@ -684,74 +679,68 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             })
     }
 
-    open func closeLeftWithVelocity(_ velocity: CGFloat) {
-        let xOrigin: CGFloat = leftContainerView.frame.origin.x
-        let finalXOrigin: CGFloat = leftMinOrigin
+    open func close(_ containerViewId: SideContainerViewId, withVelocity velocity: CGFloat) {
+        let containerView = containerView(for: containerViewId)
 
-        var frame: CGRect = leftContainerView.frame
-        frame.origin.x = finalXOrigin
+        let xOrigin: CGFloat = containerView.frame.origin.x
+        let finalXOrigin: CGFloat
 
         var duration: TimeInterval = Double(config.animationDuration)
-        if velocity != 0.0 {
-            duration = Double(abs(xOrigin - finalXOrigin) / velocity)
-            duration = Double(fmax(0.1, fmin(1.0, duration)))
+
+        switch containerViewId {
+        case .left:
+            finalXOrigin = leftMinOrigin
+
+            if velocity != 0.0 {
+                duration = Double(abs(xOrigin - finalXOrigin) / velocity)
+                duration = Double(fmax(0.1, fmin(1.0, duration)))
+            }
+        case .right:
+            finalXOrigin = view.bounds.width
+
+            if velocity != 0.0 {
+                duration = Double(abs(xOrigin - view.bounds.width) / velocity)
+                duration = Double(fmax(0.1, fmin(1.0, duration)))
+            }
         }
+
+        var frame = containerView.frame
+        frame.origin.x = finalXOrigin
 
         UIView.animate(
             withDuration: duration, delay: 0.0, options: config.animationOptions,
             animations: { [weak self] in
                 guard let self else { return }
-                self.leftContainerView.frame = frame
+
+                switch containerViewId {
+                case .left:
+                    self.leftContainerView.frame = frame
+                case .right:
+                    self.rightContainerView.frame = frame
+                }
+
                 self.opacityView.layer.opacity = 0.0
                 self.mainContainerView.transform = .identity
             }, completion: { [weak self] _ in
                 guard let self else { return }
                 self.removeShadow(self.leftContainerView)
                 self.mainContainerView.isUserInteractionEnabled = true
-                self.leftViewController?.endAppearanceTransition()
+
+                let containerView = self.containerView(for: containerViewId)
+                let containerViewController = self.viewController(for: containerViewId)
+
+                containerViewController?.endAppearanceTransition()
+
                 self.delegate?.slideMenuController?(
-                    viewController: self, didCloseContainerView: self.leftContainerView,
-                    containerViewController: self.leftViewController, containerViewId: .left
-                )
-        })
-    }
-
-
-    open func closeRightWithVelocity(_ velocity: CGFloat) {
-        let xOrigin: CGFloat = rightContainerView.frame.origin.x
-        let finalXOrigin: CGFloat = view.bounds.width
-
-        var frame: CGRect = rightContainerView.frame
-        frame.origin.x = finalXOrigin
-
-        var duration: TimeInterval = Double(config.animationDuration)
-        if velocity != 0.0 {
-            duration = Double(abs(xOrigin - view.bounds.width) / velocity)
-            duration = Double(fmax(0.1, fmin(1.0, duration)))
-        }
-
-        UIView.animate(
-            withDuration: duration, delay: 0.0, options: config.animationOptions,
-            animations: { [weak self] in
-                guard let self else { return }
-                self.rightContainerView.frame = frame
-                self.opacityView.layer.opacity = 0.0
-                self.mainContainerView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-            }, completion: { [weak self] _ in
-                guard let self else { return }
-                self.removeShadow(self.rightContainerView)
-                self.mainContainerView.isUserInteractionEnabled = true
-                self.rightViewController?.endAppearanceTransition()
-                self.delegate?.slideMenuController?(
-                    viewController: self, didCloseContainerView: self.rightContainerView,
-                    containerViewController: self.rightViewController, containerViewId: .right
+                    viewController: self, didCloseContainerView: containerView,
+                    containerViewController: containerViewController, containerViewId: containerViewId
                 )
             })
     }
 
     open override func toggleLeft() {
         if isLeftOpen {
-            closeLeft()
+            close(.left)
             setCloseWindowLevel()
             // Tracking of close tap is put in here. Because closeMenu is due to be call even when the menu tap.
             track(.tapClose, containerViewId: .left)
@@ -762,7 +751,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
     open override func toggleRight() {
         if isRightOpen {
-            closeRight()
+            close(.right)
             setCloseWindowLevel()
             // Tracking of close tap is put in here. Because closeMenu is due to be call even when the menu tap.
             track(.tapClose, containerViewId: .right)
@@ -805,8 +794,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         setUpViewController(mainContainerView, targetViewController: viewController)
 
         if closePanels {
-            closeLeft()
-            closeRight()
+            close(.left)
+            close(.right)
         }
     }
 
@@ -821,7 +810,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         setUpViewController(leftContainerView, targetViewController: viewController)
 
         if shouldClose {
-            closeLeft()
+            close(.left)
         }
     }
 
@@ -836,7 +825,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         setUpViewController(rightContainerView, targetViewController: viewController)
 
         if shouldClose {
-            closeRight()
+            close(.right)
         }
     }
 
@@ -1131,12 +1120,12 @@ extension UIViewController {
         slideMenuController?.open(.right)
     }
 
-    @objc public func closeLeft() {
-        slideMenuController?.closeLeft()
+    @objc func closeLeft() {
+        slideMenuController?.close(.left)
     }
 
-    @objc public func closeRight() {
-        slideMenuController?.closeRight()
+    @objc func closeRight() {
+        slideMenuController?.close(.right)
     }
 
     public func addPriorityToMenuGesture(_ targetScrollView: UIScrollView) {
