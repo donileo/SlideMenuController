@@ -144,6 +144,10 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         view.bounds.width
     }
 
+    open var keyWindow: UIWindow? {
+        UIApplication.shared.connectedScenes.flatMap { ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+    }
+
     fileprivate var openedLeftRatio: CGFloat {
         let width: CGFloat = leftContainerView.frame.size.width
         let currentPosition = leftContainerView.frame.origin.x - leftMinOrigin
@@ -962,14 +966,14 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     fileprivate func setOpenWindowLevel() {
         guard config.hideStatusBar else { return }
         DispatchQueue.main.async {
-            UIApplication.shared.keyWindow?.windowLevel = UIWindow.Level.statusBar + 1
+            self.keyWindow?.windowLevel = UIWindow.Level.statusBar + 1
         }
     }
 
     fileprivate func setCloseWindowLevel() {
         guard config.hideStatusBar else { return }
         DispatchQueue.main.async {
-            UIApplication.shared.keyWindow?.windowLevel = UIWindow.Level.normal
+            self.keyWindow?.windowLevel = UIWindow.Level.normal
         }
     }
 
