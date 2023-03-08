@@ -28,5 +28,6 @@ let package = Package(
             name: "SlideMenuControllerTests",
             dependencies: ["SlideMenuController"]
         ),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
