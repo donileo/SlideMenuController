@@ -337,12 +337,6 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         edgesForExtendedLayout = .all
     }
 
-    override open func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        // automatically called
-        // self.mainViewController?.viewWillAppear(animated)
-    }
-
     override open var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         mainViewController?.supportedInterfaceOrientations ?? .all
     }
@@ -510,8 +504,6 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     open func track(_ trackAction: TrackAction, containerViewId: SideContainerViewId) {
-        // function is for tracking
-        // Please to override it if necessary
     }
 
     @objc func handleLeftPanGesture(_ panGesture: UIPanGestureRecognizer) {
@@ -873,7 +865,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     fileprivate func applyTranslation(
         _ containerViewId: SideContainerViewId, _ translation: CGPoint, toFrame: CGRect
     ) -> CGRect {
-        var newOrigin: CGFloat = toFrame.origin.x
+        var newOrigin = toFrame.origin.x
         newOrigin += translation.x
 
         let minOrigin: CGFloat
@@ -1021,7 +1013,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     // MARK: UIGestureRecognizerDelegate
 
     open func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        let point: CGPoint = touch.location(in: view)
+        let point = touch.location(in: view)
 
         if gestureRecognizer == leftPanGesture {
             return shouldSlide(forContainerView: .left, forGestureRecognizer: gestureRecognizer, withTouchPoint: point)
