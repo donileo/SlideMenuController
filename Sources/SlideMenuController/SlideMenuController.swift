@@ -315,15 +315,16 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         coordinator.animate(alongsideTransition: nil) { _ in
             self.closeNonAnimation(for: .left)
             self.closeNonAnimation(for: .right)
+
             self.leftContainerView.isHidden = false
             self.rightContainerView.isHidden = false
 
-            if self.leftPanGesture != nil, self.leftPanGesture != nil {
+            if self.leftPanGesture != nil {
                 self.removeGestures(for: .left)
                 self.addGestures(for: .left)
             }
 
-            if self.rightPanGesture != nil, self.rightPanGesture != nil {
+            if self.rightPanGesture != nil {
                 self.removeGestures(for: .right)
                 self.addGestures(for: .right)
             }
@@ -345,6 +346,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
     override open func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
+
         if let mainViewController {
             setUpViewController(mainContainerView, targetViewController: mainViewController)
         }
@@ -668,10 +670,11 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }, completion: { [weak self] _ in
                 guard let self else { return }
-                self.mainContainerView.isUserInteractionEnabled = false
 
                 let containerView = self.containerView(for: containerViewId)
                 let containerViewController = self.viewController(for: containerViewId)
+
+                self.mainContainerView.isUserInteractionEnabled = false
 
                 containerViewController?.endAppearanceTransition()
 
@@ -728,10 +731,11 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             }, completion: { [weak self] _ in
                 guard let self else { return }
                 self.removeShadow(self.leftContainerView)
-                self.mainContainerView.isUserInteractionEnabled = true
 
                 let containerView = self.containerView(for: containerViewId)
                 let containerViewController = self.viewController(for: containerViewId)
+
+                self.mainContainerView.isUserInteractionEnabled = true
 
                 containerViewController?.endAppearanceTransition()
 
@@ -944,25 +948,17 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         mainContainerView.layer.opacity = 1.0
     }
 
-    fileprivate func removeContentOpacity() {
-        opacityView.layer.opacity = 0.0
-    }
-
-    fileprivate func addContentOpacity() {
-        opacityView.layer.opacity = Float(config.contentViewOpacity)
-    }
-
     fileprivate func setOpenWindowLevel() {
         guard config.hideStatusBar else { return }
         DispatchQueue.main.async {
-            self.keyWindow?.windowLevel = UIWindow.Level.statusBar + 1
+            self.keyWindow?.windowLevel = .statusBar + 1
         }
     }
 
     fileprivate func setCloseWindowLevel() {
         guard config.hideStatusBar else { return }
         DispatchQueue.main.async {
-            self.keyWindow?.windowLevel = UIWindow.Level.normal
+            self.keyWindow?.windowLevel = .normal
         }
     }
 
