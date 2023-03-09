@@ -968,16 +968,19 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     fileprivate func setUpViewController(_ targetView: UIView, targetViewController: UIViewController) {
-        targetViewController.view.frame = targetView.bounds
-
         guard !children.contains(targetViewController) else { return }
 
         addChild(targetViewController)
+        targetViewController.view.frame = targetView.bounds
         targetView.addSubview(targetViewController.view)
         targetViewController.didMove(toParent: self)
     }
 
     fileprivate func removeViewController(_ viewController: UIViewController) {
+        // Just to be safe, we check that this view controller
+        // is actually added to a parent before removing it.
+        guard viewController.parent == self else { return }
+
         viewController.view.layer.removeAllAnimations()
         viewController.willMove(toParent: nil)
         viewController.view.removeFromSuperview()
