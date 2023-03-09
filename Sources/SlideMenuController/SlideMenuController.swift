@@ -196,7 +196,6 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
     private func setupMainContainerView() {
         mainContainerView = UIView(frame: view.bounds)
-        mainContainerView.backgroundColor = .clear
         mainContainerView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         view.insertSubview(mainContainerView, at: 0)
     }
@@ -299,7 +298,6 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             containerView = rightContainerView
         }
 
-        containerView.backgroundColor = .clear
         containerView.autoresizingMask = .flexibleHeight
 
         let subViewPos = subviewPosition(for: containerViewId)
@@ -503,8 +501,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    open func track(_ trackAction: TrackAction, containerViewId: SideContainerViewId) {
-    }
+    open func track(_ trackAction: TrackAction, containerViewId: SideContainerViewId) {}
 
     @objc func handleLeftPanGesture(_ panGesture: UIPanGestureRecognizer) {
         handlePanGesture(panGesture, for: .left)
