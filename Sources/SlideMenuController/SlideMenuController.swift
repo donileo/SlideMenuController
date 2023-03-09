@@ -941,7 +941,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     fileprivate func addShadowToView(_ targetView: UIView) {
-        targetView.layer.masksToBounds = false
+        targetView.clipsToBounds = false
         targetView.layer.shadowOffset = config.shadowOffset
         targetView.layer.shadowOpacity = Float(config.shadowOpacity)
         targetView.layer.shadowRadius = config.shadowRadius
@@ -949,8 +949,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     fileprivate func removeShadow(_ targetView: UIView) {
-        targetView.layer.masksToBounds = true
-        mainContainerView.layer.opacity = 1.0
+        targetView.clipsToBounds = true
+        mainContainerView.alpha = 1
     }
 
     fileprivate func setOpenWindowLevel() {
