@@ -19,6 +19,10 @@ DateTime Format (UTC): `yyyy-mm-ddThh:mm:ssZ`
   purposes it means opacityView will not handle touch events when the left or
   right panels are closed.
 
+### Fixed
+- General: Fixed an issue where the shadow was not removed from the right panel
+  when closed.
+
 ## [0.1.0] - 2023-03-09T01.28.26Z
 ### Added
 - General: Initial Release

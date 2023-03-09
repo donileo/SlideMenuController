@@ -734,11 +734,11 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                 self.mainContainerView.transform = .identity
             }, completion: { [weak self] _ in
                 guard let self else { return }
-                self.removeShadow(self.leftContainerView)
 
                 let containerView = self.containerView(for: containerViewId)
                 let containerViewController = self.viewController(for: containerViewId)
 
+                self.removeShadow(containerView)
                 self.mainContainerView.isUserInteractionEnabled = true
                 self.opacityView.isHidden = true
 
