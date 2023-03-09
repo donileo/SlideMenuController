@@ -13,6 +13,11 @@ DateTime Format (UTC): `yyyy-mm-ddThh:mm:ssZ`
 - Security in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Internal: Hide opacityView when panel is closed and show when panel is
+  open. This is a subtle change with little effect to the user but for internal
+  purposes it means opacityView will not handle touch events when the left or
+  right panels are closed.
 
 ## [0.1.0] - 2023-03-09T01.28.26Z
 ### Added

@@ -201,15 +201,17 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     private func setupOpacityView() {
-        var opacityframe = view.bounds
         let opacityOffset: CGFloat = 0
 
-        opacityframe.origin.y = opacityframe.origin.y + opacityOffset
-        opacityframe.size.height = opacityframe.size.height - opacityOffset
-        opacityView = UIView(frame: opacityframe)
+        var opacityFrame = view.bounds
+        opacityFrame.origin.y = opacityFrame.origin.y + opacityOffset
+        opacityFrame.size.height = opacityFrame.size.height - opacityOffset
+
+        opacityView = UIView(frame: opacityFrame)
         opacityView.backgroundColor = config.opacityViewBackgroundColor
         opacityView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        opacityView.layer.opacity = 0.0
+        opacityView.alpha = 0 // Starts at 0 since the panels are closed
+        opacityView.isHidden = true
         view.insertSubview(opacityView, at: 1)
     }
 
@@ -643,6 +645,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
 
         addShadowToView(containerView)
 
+        opacityView.isHidden = false
+
         UIView.animate(
             withDuration: duration, delay: 0, options: config.animationOptions,
             animations: { [weak self] in
@@ -659,7 +663,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                     self.rightContainerView.frame = frame
                 }
 
-                self.opacityView.layer.opacity = Float(self.config.contentViewOpacity)
+                self.opacityView.alpha = 1 - self.config.contentViewOpacity
 
                 if self.config.contentViewDrag {
                     self.mainContainerView.transform = .init(translationX: transformTranslationX, y: 0)
@@ -726,7 +730,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                     self.rightContainerView.frame = frame
                 }
 
-                self.opacityView.layer.opacity = 0.0
+                self.opacityView.alpha = 0
                 self.mainContainerView.transform = .identity
             }, completion: { [weak self] _ in
                 guard let self else { return }
@@ -736,6 +740,7 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
                 let containerViewController = self.viewController(for: containerViewId)
 
                 self.mainContainerView.isUserInteractionEnabled = true
+                self.opacityView.isHidden = true
 
                 containerViewController?.endAppearanceTransition()
 
@@ -909,8 +914,8 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
             openedRatio = openedRightRatio
         }
 
-        let opacity = config.contentViewOpacity * openedRatio
-        opacityView.layer.opacity = Float(opacity)
+        let alpha = (1 - config.contentViewOpacity) * openedRatio
+        opacityView.alpha = alpha
     }
 
     fileprivate func applyContentViewScale(_ containerViewId: SideContainerViewId) {
@@ -997,7 +1002,9 @@ open class SlideMenuController: UIViewController, UIGestureRecognizerDelegate {
         frame.origin.x = finalXOrigin
         containerView.frame = frame
 
-        opacityView.layer.opacity = 0.0
+        opacityView.alpha = 0
+        opacityView.isHidden = true
+
         mainContainerView.transform = .identity
         removeShadow(containerView)
         mainContainerView.isUserInteractionEnabled = true
